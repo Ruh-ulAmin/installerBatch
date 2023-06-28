@@ -4,7 +4,7 @@ echo Installing software...
 set /p link=Enter the publicly shared link to the software:
 
 echo Obtaining direct download link...
-powershell -Command "$response = Invoke-WebRequest -Uri '%link%'; $directLink = $response.links.href | Where-Object { $_ -like '*uc?id=*' } | ForEach-Object { $_ -replace '/view', '' }; Write-Output $directLink" > temp.txt
+powershell -Command "$response = Invoke-WebRequest -Uri '%link%'; $directLink = $response.links.href | Where-Object { $_ -like '*uc?id=*' } | ForEach-Object { $_ -replace '/view', '' }; Write-Output $directLink | Set-Content -NoNewline -Path temp.txt"
 
 set /p directLink=<temp.txt
 del temp.txt
