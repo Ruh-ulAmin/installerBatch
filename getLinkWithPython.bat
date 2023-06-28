@@ -10,7 +10,19 @@ echo %link% | findstr /C:"https://drive.google.com/" > nul
 if not errorlevel 1 (
     echo Google Drive link detected.
     echo Obtaining direct download link...
-    powershell -Command "$webContent = Invoke-WebRequest -Uri '%link%' -UseBasicParsing; $directLink = $webContent.ParsedHtml.getElementsByTagName('a') | Where-Object { $_.href -like 'https://drive.google.com/uc*' -and $_.innerHTML -ne $null } | Select-Object -First 1 -ExpandProperty href; if ($directLink) { $directLink } else { Write-Output '' }" > "%logFile%
+    python - <<EOF > "%logFile%"
+import requests
+from bs4 import BeautifulSoup
+
+link = '%link%'
+response = requests.get(link)
+soup = BeautifulSoup(response.text, 'html.parser')
+directLink = soup.find('a', href=lambda href: href and href.startswith('https://drive.google.com/uc'))
+if directLink:
+    print(directLink['href'])
+else:
+    print('')
+EOF
 
     set /p directLink=<"%logFile%"
     if not defined directLink (
@@ -25,7 +37,19 @@ if not errorlevel 1 (
     echo File name: %logFile%
 ) else (
     echo General website link detected.
-    powershell -Command "$webContent = Invoke-WebRequest -Uri '%link%' -UseBasicParsing; $matches = ([regex]::Matches($webContent.Content, '<a\s+(?:[^>]*?\s+)?href=([""'])(.*?)\1(?=\s|>)')); if ($matches) { $matches | ForEach-Object { $_.Groups[2].Value } } else { Write-Output '' }" > "%logFile%"
+    python - <<EOF > "%logFile%"
+import requests
+from bs4 import BeautifulSoup
+import re
+
+link = '%link%'
+response = requests.get(link)
+soup = BeautifulSoup(response.text, 'html.parser')
+matches = soup.find_all('a', href=re.compile(r'https?://[^\s]+'))
+download_links = [a['href'] for a in matches]
+for link in download_links:
+    print(link)
+EOF
 
     echo The download links have been saved to: %logFile%
 )
