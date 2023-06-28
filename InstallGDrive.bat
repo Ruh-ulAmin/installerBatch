@@ -4,19 +4,26 @@ echo Installing software...
 set /p link=Enter the publicly shared link to the software:
 
 echo Obtaining direct download link...
-powershell -Command "$response = Invoke-WebRequest -Uri '%link%'; $directLink = $response.links.href | Where-Object { $_ -like '*uc?id=*' } | ForEach-Object { $_ -replace '/view', '' }; Write-Output $directLink | Set-Content -NoNewline -Path temp.txt"
-
-set /p directLink=<temp.txt
-del temp.txt
+curl -s -L -c cookies.txt "%link%" > response.html
+set "directLink="
+for /F "tokens=2 delims=^<^>" %%G in (response.html) do (
+    if "%%G" neq "" (
+        set "directLink=%%G"
+        goto :foundlink
+    )
+)
+:foundlink
+del response.html
 
 echo Downloading software...
-powershell -command "(New-Object Net.WebClient).DownloadFile('%directLink%', 'software.exe')"
+curl -L -b cookies.txt -o software.exe "%directLink%"
 
 echo Installing software...
 start /wait "" "software.exe"
 
 echo Cleaning up...
 del "software.exe"
+del cookies.txt
 
 echo Installation completed.
 pause
