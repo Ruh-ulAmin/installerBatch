@@ -1,24 +1,29 @@
 @echo off
 setlocal enabledelayedexpansion
 
-set url=agracurry.com
+set /p browser=Select a browser (1 for Chrome, 2 for Firefox): 
 
-rem Move logo.png to the Pictures folder
-set pictures_folder="%USERPROFILE%\Pictures"
-set logo_icon=!~dp0logo.png
-echo Moving logo.png to the Pictures folder...
-xcopy /y /i "!logo_icon!" %pictures_folder%
+if "%browser%"=="1" (
+    set browser_name=Chrome
+    set browser_exe="C:\Program Files\Google\Chrome\Application\chrome.exe"
+) else if "%browser%"=="2" (
+    set browser_name=Firefox
+    set browser_exe="C:\Program Files\Mozilla Firefox\firefox.exe"
+) else (
+    echo Invalid browser selection.
+    exit /b
+)
 
-rem Create Chrome shortcut
-set chrome_shortcut="%USERPROFILE%\Desktop\Chrome - Agra Curry.lnk"
-echo Creating Chrome shortcut...
-powershell.exe -c "$s = (New-Object -ComObject WScript.Shell).CreateShortcut(!chrome_shortcut!); $s.TargetPath = 'C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Google Chrome.lnk'; $s.Arguments = ' !url!'; $s.Description = 'Agra Curry'; $s.IconLocation = %pictures_folder%\logo.png; $s.Save()"
+set /p shortcut_name=Enter a name for the shortcut: 
+set /p url=Enter the URL: 
 
-rem Create Firefox shortcut
-set firefox_shortcut="%USERPROFILE%\Desktop\Firefox - Agra Curry.lnk"
-echo Creating Firefox shortcut...
-powershell.exe -c "$s = (New-Object -ComObject WScript.Shell).CreateShortcut(!firefox_shortcut!); $s.TargetPath = 'C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Mozilla Firefox.lnk'; $s.Arguments = ' !url!'; $s.Description = 'Agra Curry'; $s.IconLocation = %pictures_folder%\logo.png; $s.Save()"
+set /p icon_path=Enter the path to the icon file: 
 
-echo Shortcuts created on the desktop.
+set shortcut_path="%USERPROFILE%\Desktop\%shortcut_name%.lnk"
+
+echo Creating %browser_name% shortcut...
+powershell.exe -c "$s = (New-Object -ComObject WScript.Shell).CreateShortcut(!shortcut_path!); $s.TargetPath = %browser_exe%; $s.Arguments = '!url!'; $s.Description = '%shortcut_name%'; $s.IconLocation = !icon_path!; $s.Save()"
+
+echo %browser_name% shortcut created on the desktop.
 
 endlocal
