@@ -20,15 +20,25 @@ if "%browser%"=="1" (
     goto main
 )
 
-set /p shortcut_name=Enter a name for the shortcut: 
-set /p url=Enter the URL: 
 
-set /p icon_path=Enter the path to the icon file: 
+if not defined shortcut_name (
+    set /p shortcut_name=Enter a name for the shortcut:
+    set shortcut_name_combined=%shortcut_name% - %browser_name%
+)
 
-set shortcut_path="%USERPROFILE%\Desktop\%shortcut_name%.lnk"
+
+if not defined url (
+    set /p url=Enter the URL: 
+)
+
+if not defined icon_path (
+    set /p icon_path=Enter the path to the icon file: 
+)
+
+set shortcut_path="%USERPROFILE%\Desktop\%shortcut_name_combined%.lnk"
 
 echo Creating %browser_name% shortcut...
-powershell.exe -c "$s = (New-Object -ComObject WScript.Shell).CreateShortcut(!shortcut_path!); $s.TargetPath = %browser_exe%; $s.Arguments = '!url!'; $s.Description = '%shortcut_name%'; $s.IconLocation = !icon_path!; $s.Save()"
+powershell.exe -c "$s = (New-Object -ComObject WScript.Shell).CreateShortcut('!shortcut_path!'); $s.TargetPath = %browser_exe%; $s.Arguments = '!url!'; $s.Description = '%shortcut_name%'; $s.IconLocation = '!icon_path!'; $s.Save()"
 
 echo %browser_name% shortcut created on the desktop.
 
