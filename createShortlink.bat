@@ -3,42 +3,22 @@ setlocal enabledelayedexpansion
 
 set url=agracurry.com
 
-rem Find Chrome installation path
-set chrome_path=
-for /f "usebackq tokens=2,*" %%A in (`reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe" /ve`) do (
-    set chrome_path=%%B
-)
-if not defined chrome_path (
-    echo Chrome is not installed.
-) else (
-    echo Chrome path: !chrome_path!
-    set chrome_icon=!~dp0logo.png
-    echo Moving logo.png to the Pictures folder...
-    xcopy /y /i "!chrome_icon!" "%USERPROFILE%\Pictures"
-    set shortcut_path="%USERPROFILE%\Desktop\AgraCurry.lnk"
-    echo Creating Chrome shortcut...
-    powershell.exe -c "$s=(New-Object -COM WScript.Shell).CreateShortcut(!shortcut_path!); $s.TargetPath=!chrome_path!; $s.Arguments=!url!; $s.IconLocation=!chrome_icon!; $s.Save()"
+rem Move logo.png to the Pictures folder
+set pictures_folder="%USERPROFILE%\Pictures"
+set logo_icon=!~dp0logo.png
+echo Moving logo.png to the Pictures folder...
+xcopy /y /i "!logo_icon!" %pictures_folder%
 
-    echo Chrome shortcut created on the desktop.
-)
+rem Create Chrome shortcut
+set chrome_shortcut="%USERPROFILE%\Desktop\Chrome - Agra Curry.lnk"
+echo Creating Chrome shortcut...
+powershell.exe -c "$s = (New-Object -ComObject WScript.Shell).CreateShortcut(!chrome_shortcut!); $s.TargetPath = 'C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Google Chrome.lnk'; $s.Arguments = ' !url!'; $s.Description = 'Agra Curry'; $s.IconLocation = %pictures_folder%\logo.png; $s.Save()"
 
-rem Find Firefox installation path
-set firefox_path=
-for /f "usebackq tokens=2,*" %%A in (`reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\firefox.exe" /ve`) do (
-    set firefox_path=%%B
-)
-if not defined firefox_path (
-    echo Firefox is not installed.
-) else (
-    echo Firefox path: !firefox_path!
-    set firefox_icon=!~dp0logo.png
-    echo Moving logo.png to the Pictures folder...
-    xcopy /y /i "!firefox_icon!" "%USERPROFILE%\Pictures"
-    set shortcut_path="%USERPROFILE%\Desktop\AgraCurry.lnk"
-    echo Creating Firefox shortcut...
-    powershell.exe -c "$s=(New-Object -COM WScript.Shell).CreateShortcut(!shortcut_path!); $s.TargetPath=!firefox_path!; $s.Arguments=!url!; $s.IconLocation=!firefox_icon!; $s.Save()"
+rem Create Firefox shortcut
+set firefox_shortcut="%USERPROFILE%\Desktop\Firefox - Agra Curry.lnk"
+echo Creating Firefox shortcut...
+powershell.exe -c "$s = (New-Object -ComObject WScript.Shell).CreateShortcut(!firefox_shortcut!); $s.TargetPath = 'C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Mozilla Firefox.lnk'; $s.Arguments = ' !url!'; $s.Description = 'Agra Curry'; $s.IconLocation = %pictures_folder%\logo.png; $s.Save()"
 
-    echo Firefox shortcut created on the desktop.
-)
+echo Shortcuts created on the desktop.
 
 endlocal
