@@ -1,7 +1,13 @@
 @echo off
 setlocal enabledelayedexpansion
 
-set /p browser=Select a browser (1 for Chrome, 2 for Firefox): 
+:main
+set /p browser=Select a browser (1 for Chrome, 2 for Firefox, or 0 to exit): 
+
+if "%browser%"=="0" (
+    echo Exiting the script.
+    exit /b
+)
 
 if "%browser%"=="1" (
     set browser_name=Chrome
@@ -11,7 +17,7 @@ if "%browser%"=="1" (
     set browser_exe="C:\Program Files\Mozilla Firefox\firefox.exe"
 ) else (
     echo Invalid browser selection.
-    exit /b
+    goto main
 )
 
 set /p shortcut_name=Enter a name for the shortcut: 
@@ -25,5 +31,13 @@ echo Creating %browser_name% shortcut...
 powershell.exe -c "$s = (New-Object -ComObject WScript.Shell).CreateShortcut(!shortcut_path!); $s.TargetPath = %browser_exe%; $s.Arguments = '!url!'; $s.Description = '%shortcut_name%'; $s.IconLocation = !icon_path!; $s.Save()"
 
 echo %browser_name% shortcut created on the desktop.
+
+set /p create_more=Create shortcuts for more browsers? (Y/N): 
+
+if /i "%create_more%"=="Y" (
+    goto main
+) else (
+    echo Exiting the script.
+)
 
 endlocal
